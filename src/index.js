@@ -1,3 +1,4 @@
+//#region Requires
 const express = require('express');
 const morgan = require('morgan');
 const exphbs = require('express-handlebars');
@@ -7,13 +8,15 @@ const session = require('express-session');
 const MySQLStore = require('express-mysql-session');
 const { database } = require('./keys');
 const passport = require('passport');
+//#endregion
 
-//Initializations
+//#region Initializations
 const app = express();
 require('./lib/passport').Strategy;
+//#endregion
 
-//Settings
-app.set('port', process.env.PORT || 4000);
+//#region Settings
+app.set('port', process.env.PORT || 80);
 app.set('views', path.join(__dirname, 'views'));
 app.engine('.hbs', exphbs({
     defaultLayout: 'main',
@@ -23,8 +26,9 @@ app.engine('.hbs', exphbs({
     helpers: require('./lib/handlebars')
 }));
 app.set('view engine', '.hbs');
+//#endregion
 
-//Middlewares
+//#region Middlewares
 app.use(session({
     secret: 'faztmysqlnodesession',
     resave: false,
@@ -37,8 +41,9 @@ app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 app.use(passport.initialize());
 app.use(passport.session());
+//#endregion
 
-//Global Variables
+//#region Global Variables
 app.use((req, res, next) => {
     app.locals.success = req.flash('success');
     app.locals.message = req.flash('message');
@@ -47,16 +52,21 @@ app.use((req, res, next) => {
 
     next();
 });
+//#endregion
 
-//Routess
+//#region Routess
 app.use( require('./routes/index.js') );
 app.use( require('./routes/authentications.js') );
 app.use('/links', require('./routes/links.js') );
+//#endregion
 
-//Public
+
+//#region Public
 app.use(express.static(path.join(__dirname,'public')));
+//#endregion
 
-//Starting the server
+//#region Starting the server
 app.listen(app.get('port'), () => {
     console.log('Server on port ', app.get('port'));
 });
+//#endregion
